@@ -5,25 +5,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.Button
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -49,17 +52,22 @@ class BluetoothServerFragment : Fragment() {
 
     @Composable
     fun VerticalLinearLayout() {
+
         Surface(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
+                .navigationBarsPadding()
+                .imePadding()
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp),
+                    .padding(12.dp, 0.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+
                 Text(text = "Item 1")
 
                 ChatList(
@@ -68,10 +76,7 @@ class BluetoothServerFragment : Fragment() {
                         .weight(1.0f)
                 )
 
-                Text(
-                    modifier = Modifier
-                        .clickable { viewModel.addItem() },
-                    text = "Item 3")
+                ChatSendContainer()
             }
         }
     }
@@ -89,17 +94,10 @@ class BluetoothServerFragment : Fragment() {
         ) {
             items(itemList.size) { index ->
                 ChatListItem(data = itemList[index])
-
-                println("@@@ DRAW ITEM " + index)
             }
         }
 
-        // Trigger scrolling when the list changes
         LaunchedEffect(itemList) {
-            println("@@@ LAUNCHED EFFECT " + itemList.size)
-//            val previousData = snapshotState().prev
-//            val currentData = snapshotState().value
-            // Scroll to the bottom after adding the new item
             lazyListState.scrollToItem(itemList.size - 1)
         }
     }
@@ -109,7 +107,7 @@ class BluetoothServerFragment : Fragment() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(0.dp, 12.dp)
                 .background(Color.Gray)
         ) {
             Text(text = data.title, color = Color.White)
@@ -126,6 +124,58 @@ class BluetoothServerFragment : Fragment() {
                 )
             }
         }
+    }
+
+    @Composable
+    fun ChatSendContainer() {
+        val textState by viewModel.inputText.observeAsState()
+
+        Row {
+            OutlinedTextField(
+                value = textState ?: "",
+                onValueChange = {
+                    // Update the text state in the ViewModel
+                    viewModel.inputText.value = it
+                },
+                label = { Text("Enter Text") },
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+                ),
+//            keyboardActions = KeyboardActions(
+//                onDone = {
+//                    // Hide the keyboard when Done is pressed
+//                    keyboardController?.hide()
+//                }
+//            ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1.0f)
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Button(
+                modifier = Modifier
+                    .padding(0.dp, 6.dp, 0.dp, 0.dp)
+                    .height(42.dp)
+                    .align(Alignment.CenterVertically)
+                ,
+                enabled = textState?.isNotEmpty() == true,
+                onClick = { },
+                contentPadding = PaddingValues(0.dp)
+            ) {
+                Text(
+                    text = "Send",
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+            }
+        }
+        // Use LocalSoftwareKeyboardController to show/hide keyboard
+//        val keyboardController = LocalSoftwareKeyboardController.current
+
+
+
+
     }
 
 }

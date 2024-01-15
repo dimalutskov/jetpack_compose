@@ -14,6 +14,8 @@ class BluetoothServerViewModel : ViewModel() {
     // Use mutableStateOf to create a mutable state
     val itemList: MutableLiveData<List<CustomData>>
 
+    val inputText = MutableLiveData("")
+
     // Function to update the itemList
     fun updateItemList(newList: List<CustomData>) {
         itemList.value = newList
