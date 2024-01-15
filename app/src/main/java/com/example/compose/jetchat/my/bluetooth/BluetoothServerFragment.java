@@ -40,7 +40,7 @@ public class BluetoothServerFragment extends Fragment implements BluetoothServer
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_server, container, false);
+        return null;//inflater.inflate(R.layout.fragment_server, container, false);
     }
 
     @Override
@@ -84,21 +84,21 @@ public class BluetoothServerFragment extends Fragment implements BluetoothServer
 
     @SuppressLint("MissingPermission")
     private void refreshConnectedDevices() {
-        ViewGroup connectedDevicesContainer = getView().findViewById(R.id.connected_devices);
-        connectedDevicesContainer.removeAllViews();
-
-        for (BluetoothDevice device : connectedDevices) {
-            View item = LayoutInflater.from(getActivity()).inflate(R.layout.item_bluetooth_device, connectedDevicesContainer, false);
-            ((TextView)item.findViewById(R.id.device_title)).setText(device.getName() + ": " + device.getAddress());
-            connectedDevicesContainer.addView(item);
-        }
+//        ViewGroup connectedDevicesContainer = getView().findViewById(R.id.connected_devices);
+//        connectedDevicesContainer.removeAllViews();
+//
+//        for (BluetoothDevice device : connectedDevices) {
+//            View item = LayoutInflater.from(getActivity()).inflate(R.layout.item_bluetooth_device, connectedDevicesContainer, false);
+//            ((TextView)item.findViewById(R.id.device_title)).setText(device.getName() + ": " + device.getAddress());
+//            connectedDevicesContainer.addView(item);
+//        }
     }
 
     private void addMessage(DisplayMessage message) {
-        ViewGroup messagesContainer = getView().findViewById(R.id.server_messages_container);
-        View item = LayoutInflater.from(getActivity()).inflate(R.layout.item_server_message, messagesContainer, false);
-        ((TextView)item.findViewById(R.id.message_content)).setText(message.type + " " + message.time + " " + message.message);
-        messagesContainer.addView(item);
+//        ViewGroup messagesContainer = getView().findViewById(R.id.server_messages_container);
+//        View item = LayoutInflater.from(getActivity()).inflate(R.layout.item_server_message, messagesContainer, false);
+//        ((TextView)item.findViewById(R.id.message_content)).setText(message.type + " " + message.time + " " + message.message);
+//        messagesContainer.addView(item);
     }
 
     static class DisplayMessage {

@@ -30,7 +30,6 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.bluetoothapplication.databinding.ActivityMainBinding;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
@@ -87,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     private DeviceConnectionThread connectionThread;
 
-    private ActivityMainBinding binding;
+//    private ActivityMainBinding binding;
 
     private ProgressDialog pairingProgress;
 
@@ -103,10 +102,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         registerReceiver(receiver, filter);
 
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
-        binding.bluetoothSwitch.setOnCheckedChangeListener(this);
-        binding.btnFindDevices.setOnClickListener(v -> discoverDevices());
-        setContentView(binding.getRoot());
+//        binding = ActivityMainBinding.inflate(getLayoutInflater());
+//        binding.bluetoothSwitch.setOnCheckedChangeListener(this);
+//        binding.btnFindDevices.setOnClickListener(v -> discoverDevices());
+//        setContentView(binding.getRoot());
     }
 
     @Override
@@ -116,8 +115,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         updateBluetoothState();
 
         // TODO
-        ProfilesFragment fragment = new ProfilesFragment();
-        getSupportFragmentManager().beginTransaction().add(R.id.activity_root, fragment).commitNowAllowingStateLoss();
+//        ProfilesFragment fragment = new ProfilesFragment();
+//        getSupportFragmentManager().beginTransaction().add(R.id.activity_root, fragment).commitNowAllowingStateLoss();
     }
 
     @Override
@@ -179,9 +178,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     private void toggleBluetoothSwitch(boolean checked) {
-        binding.bluetoothSwitch.setOnCheckedChangeListener(null);
-        binding.bluetoothSwitch.setChecked(checked);
-        binding.bluetoothSwitch.setOnCheckedChangeListener(this);
+//        binding.bluetoothSwitch.setOnCheckedChangeListener(null);
+//        binding.bluetoothSwitch.setChecked(checked);
+//        binding.bluetoothSwitch.setOnCheckedChangeListener(this);
     }
 
     @SuppressLint("MissingPermission")
@@ -257,8 +256,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     private void stopObservingDevices() {
-        binding.findDevices.setVisibility(View.GONE);
-        binding.btnFindDevices.setVisibility(View.VISIBLE);
+//        binding.findDevices.setVisibility(View.GONE);
+//        binding.btnFindDevices.setVisibility(View.VISIBLE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_SCAN) == PackageManager.PERMISSION_GRANTED) {
             if (bluetoothAdapter.isDiscovering()) {
                 bluetoothAdapter.cancelDiscovery();
@@ -267,17 +266,17 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     }
 
     private void updatePairedDevices() {
-        binding.bluetoothPairedDevicesContainer.removeAllViews();
-        binding.titlePairedDevices.setVisibility(View.GONE);
+//        binding.bluetoothPairedDevicesContainer.removeAllViews();
+//        binding.titlePairedDevices.setVisibility(View.GONE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && ActivityCompat.checkSelfPermission(this, Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         Set<BluetoothDevice> pairedDevices = bluetoothAdapter.getBondedDevices();
         if (!pairedDevices.isEmpty()) {
-            binding.titlePairedDevices.setVisibility(View.VISIBLE);
+//            binding.titlePairedDevices.setVisibility(View.VISIBLE);
             for (BluetoothDevice device : pairedDevices) {
-                BluetoothDeviceItem item = new BluetoothDeviceItem(device, binding.bluetoothPairedDevicesContainer);
-                binding.bluetoothPairedDevicesContainer.addView(item.view);
+//                BluetoothDeviceItem item = new BluetoothDeviceItem(device, binding.bluetoothPairedDevicesContainer);
+//                binding.bluetoothPairedDevicesContainer.addView(item.view);
             }
         }
     }
@@ -285,9 +284,9 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
     @SuppressLint("MissingPermission")
     private void onBluetoothDeviceFound(BluetoothDevice device) {
         if (device.getName() != null) {
-            binding.titleAvailableDevices.setVisibility(View.VISIBLE);
-            BluetoothDeviceItem item = new BluetoothDeviceItem(device, binding.bluetoothDevicesContainer);
-            binding.bluetoothDevicesContainer.addView(item.view);
+//            binding.titleAvailableDevices.setVisibility(View.VISIBLE);
+//            BluetoothDeviceItem item = new BluetoothDeviceItem(device, binding.bluetoothDevicesContainer);
+//            binding.bluetoothDevicesContainer.addView(item.view);
         }
     }
 
@@ -302,10 +301,10 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
 
     // TEMP
     void startBluetoothServer() {
-        BluetoothServerFragment fragment = new BluetoothServerFragment();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        getSupportFragmentManager().beginTransaction().add(R.id.activity_root, fragment).commitNowAllowingStateLoss();
+//        BluetoothServerFragment fragment = new BluetoothServerFragment();
+//        Bundle args = new Bundle();
+//        fragment.setArguments(args);
+//        getSupportFragmentManager().beginTransaction().add(R.id.activity_root, fragment).commitNowAllowingStateLoss();
     }
 
     class BluetoothDeviceItem {
@@ -315,8 +314,8 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
         @SuppressLint("MissingPermission")
         BluetoothDeviceItem(BluetoothDevice device, ViewGroup parent) {
             this.device = device;
-            this.view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_bluetooth_device, parent, false);
-            ((TextView)view.findViewById(R.id.device_title)).setText(device.getName() + " (" + device.getBluetoothClass().getDeviceClass() + ") : " + device.getAddress());
+            this.view = null;//LayoutInflater.from(parent.getContext()).inflate(R.layout.item_bluetooth_device, parent, false);
+//            ((TextView)view.findViewById(R.id.device_title)).setText(device.getName() + " (" + device.getBluetoothClass().getDeviceClass() + ") : " + device.getAddress());
             this.view.setOnClickListener(view -> {
                 stopObservingDevices();
                 if (device.getBondState() != BluetoothDevice.BOND_BONDED) {
@@ -343,11 +342,11 @@ public class MainActivity extends AppCompatActivity implements CompoundButton.On
             builder.setMessage("Confirm connect to " + device.getName())
                     .setTitle("Connect device")
                     .setPositiveButton("Connect", (dialog, id) -> {
-                        DeviceFragment fragment = new DeviceFragment();
-                        Bundle args = new Bundle();
-                        args.putParcelable(DeviceFragment.ARG_DEVICE, device);
-                        fragment.setArguments(args);
-                        getSupportFragmentManager().beginTransaction().add(R.id.activity_root, fragment).commitNowAllowingStateLoss();
+//                        DeviceFragment fragment = new DeviceFragment();
+//                        Bundle args = new Bundle();
+//                        args.putParcelable(DeviceFragment.ARG_DEVICE, device);
+//                        fragment.setArguments(args);
+//                        getSupportFragmentManager().beginTransaction().add(R.id.activity_root, fragment).commitNowAllowingStateLoss();
                     })
                     .setNegativeButton("Cancel", (dialog, id) -> {})
                     .create().show();

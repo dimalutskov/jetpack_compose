@@ -57,17 +57,17 @@ public class DeviceFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_device, container, false);
+        return null;//inflater.inflate(R.layout.fragment_device, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        view.findViewById(R.id.device_disconnect).setOnClickListener(v -> {
+//        view.findViewById(R.id.device_disconnect).setOnClickListener(v -> {
 //            connectionThread.cancel();
             connectionThread.write("Hello".getBytes(StandardCharsets.UTF_8));
-        });
+//        });
     }
 
     private void connect() {
@@ -76,6 +76,6 @@ public class DeviceFragment extends Fragment {
     }
 
     private void onConnected() {
-        requireView().findViewById(R.id.progress).setVisibility(View.GONE);
+//        requireView().findViewById(R.id.progress).setVisibility(View.GONE);
     }
 }

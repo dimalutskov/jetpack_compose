@@ -4,10 +4,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
@@ -30,6 +33,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.example.compose.jetchat.theme.Blue80
 
 class BluetoothServerFragment : Fragment() {
 
@@ -74,6 +78,7 @@ class BluetoothServerFragment : Fragment() {
                     modifier = Modifier
                         .fillMaxSize()
                         .weight(1.0f)
+                        .border(1.dp, Blue80, RoundedCornerShape(4.dp))
                 )
 
                 ChatSendContainer()
@@ -90,7 +95,7 @@ class BluetoothServerFragment : Fragment() {
 
         LazyColumn(
             modifier = modifier,
-            state = lazyListState
+            state = lazyListState,
         ) {
             items(itemList.size) { index ->
                 ChatListItem(data = itemList[index])
