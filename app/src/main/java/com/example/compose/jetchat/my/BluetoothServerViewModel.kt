@@ -1,47 +1,28 @@
 package com.example.compose.jetchat.my
 
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class BluetoothServerViewModel : ViewModel() {
+class BluetoothServerViewModel : ViewModel(), BluetoothConnector.Listener {
 
-    data class CustomData(
-        val title: String,
-        val subtitle: String,
-        val icon: String // In a real-world scenario, you might want to use a more appropriate data type for icons
-    )
+    private val bluetoothConnector = BluetoothConnector()
+
+    val bluetoothState: MutableLiveData<BluetoothConnector.State> = MutableLiveData(BluetoothConnector.State.NOT_SUPPORTED)
 
     // Use mutableStateOf to create a mutable state
-    val itemList: MutableLiveData<List<CustomData>>
+    val messages: MutableLiveData<List<DisplayMessage>> = MutableLiveData(ArrayList())
 
     val inputText = MutableLiveData("")
 
-    // Function to update the itemList
-    fun updateItemList(newList: List<CustomData>) {
-        itemList.value = newList
-    }
+    data class DisplayMessage(val type: MessageType, val sender: String, val message: String) {
 
-    fun addItem(item: CustomData) {
-        itemList.value = itemList.value?.plus(item)
-    }
+        val time: Long = System.currentTimeMillis()
 
-    fun addItem() {
-        addItem(CustomData("New title", "B", "C"))
-    }
-
-    init {
-        // TEST
-        val dummyItemList = List(10) {
-            BluetoothServerViewModel.CustomData(
-                "Title $it", "Subtitle $it", when {
-                    it % 3 == 0 -> "info"
-                    it % 3 == 1 -> "star"
-                    else -> "warning"
-                }
-            )
+        enum class MessageType {
+            CONNECTION, MESSAGE, ERROR
         }
-        itemList = MutableLiveData<List<CustomData>>(dummyItemList)
-    }
 
+    }
 
 }

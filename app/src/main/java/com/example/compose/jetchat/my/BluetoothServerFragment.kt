@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -12,12 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -25,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -37,21 +32,44 @@ import com.example.compose.jetchat.theme.Blue80
 
 class BluetoothServerFragment : Fragment() {
 
+    private val bluetoothConnector = BluetoothConnector()
+
     private val viewModel: BluetoothServerViewModel by activityViewModels()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View = ComposeView(inflater.context).apply {
-        layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.MATCH_PARENT
-        )
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
+        bluetoothConnector.init(this)
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = ComposeView(inflater.context).apply {
+        layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         setContent {
             VerticalLinearLayout()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        bluetoothConnector.subscribe(viewModel)
+        viewModel.bluetoothState.value = bluetoothConnector.checkState()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        bluetoothConnector.unsubscribe(viewModel)
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.isNotEmpty()) {
+            viewModel.bluetoothState.value = bluetoothConnector.checkState()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        bluetoothConnector.destroy()
     }
 
     @Composable
@@ -74,21 +92,37 @@ class BluetoothServerFragment : Fragment() {
 
                 Text(text = "Item 1")
 
-                ChatList(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1.0f)
-                        .border(1.dp, Blue80, RoundedCornerShape(4.dp))
-                )
+//                ChatList(
+//                    modifier = Modifier
+//                        .fillMaxSize()
+//                        .weight(1.0f)
+//                        .border(1.dp, Blue80, RoundedCornerShape(4.dp))
+//                )
 
                 ChatSendContainer()
+            }
+
+            DisabledView()
+        }
+    }
+
+    @Composable
+    fun DisabledView() {
+        val state by viewModel.bluetoothState.observeAsState()
+        if (state != BluetoothConnector.State.BLUETOOTH_ENABLED) {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.background)
+                    .fillMaxSize()
+            ) {
+                Text(text = "DISABLED")
             }
         }
     }
 
     @Composable
     fun ChatList(modifier: Modifier) {
-        val itemList by viewModel.itemList.observeAsState(emptyList())
+        val itemList by viewModel.messages.observeAsState(emptyList())
 
         // Maintain a reference to LazyListState
         val lazyListState = rememberLazyListState()
@@ -108,26 +142,14 @@ class BluetoothServerFragment : Fragment() {
     }
 
     @Composable
-    fun ChatListItem(data: BluetoothServerViewModel.CustomData) {
+    fun ChatListItem(data: BluetoothServerViewModel.DisplayMessage) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(0.dp, 12.dp)
                 .background(Color.Gray)
         ) {
-            Text(text = data.title, color = Color.White)
-            Text(text = data.subtitle, color = Color.White)
-            when (data.icon) {
-                "info" -> Icons.Default.Info
-                "star" -> Icons.Default.Star
-                "warning" -> Icons.Default.Warning
-                else -> {}
-            }.let { icon ->
-                Text(
-                    text = "Icon: $icon",
-                    color = Color.White
-                )
-            }
+            Text(text = data.message, color = Color.White)
         }
     }
 
