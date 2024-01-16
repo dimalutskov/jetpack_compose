@@ -22,18 +22,21 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 class BluetoothConnector {
 
-    private val listeners = CopyOnWriteArrayList<Listener>()
+    private var state = State.NONE
 
     private lateinit var activity: FragmentActivity
     private lateinit var requestPermissionsLauncher: ActivityResultLauncher<String>
     private lateinit var requestBluetoothLauncher: ActivityResultLauncher<Intent>
-    private var bluetoothAdapter: BluetoothAdapter? = null
+
+    var bluetoothAdapter: BluetoothAdapter? = null
+
+    private val listeners = CopyOnWriteArrayList<Listener>()
 
     private val receiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             when (intent.action) {
                 BluetoothAdapter.ACTION_STATE_CHANGED -> {
-                    listeners.forEach { it.onBluetoothStateChanged(bluetoothAdapter?.isEnabled == true) }
+                    updateState(if (bluetoothAdapter?.isEnabled == true) State.BLUETOOTH_ENABLED else State.BLUETOOTH_DISABLED)
                 }
 
                 BluetoothDevice.ACTION_FOUND -> {
@@ -70,8 +73,8 @@ class BluetoothConnector {
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
         fragment.activity?.registerReceiver(receiver, filter)
 
-        requestBluetoothLauncher = fragment.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            listeners.forEach { it.onBluetoothStateChanged(bluetoothAdapter?.isEnabled == true) }
+        requestBluetoothLauncher = fragment.registerForActivityResult(StartActivityForResult()) { result ->
+            checkState()
         }
 
         requestPermissionsLauncher = fragment.registerForActivityResult(RequestPermission()) { isGranted ->
@@ -100,7 +103,20 @@ class BluetoothConnector {
         listeners.remove(listener)
     }
 
+    private fun updateState(newState: State) {
+        if (this.state != newState) {
+            this.state = newState
+            listeners.forEach { it.onBluetoothStateChanged(state) }
+        }
+    }
+
     fun checkState(): State {
+        val newState = checkStateInternal()
+        updateState(newState)
+        return newState;
+    }
+
+    fun checkStateInternal(): State {
         if (bluetoothAdapter == null) {
             return State.NOT_SUPPORTED
         }
@@ -154,7 +170,7 @@ class BluetoothConnector {
     }
 
     interface Listener {
-        fun onBluetoothStateChanged(enabled: Boolean) {}
+        fun onBluetoothStateChanged(state: State) {}
         fun onBluetoothDeviceFound(device: BluetoothDevice) {}
         fun onBluetoothBoundStateChanged(device: BluetoothDevice, boundState: Int) {}
     }

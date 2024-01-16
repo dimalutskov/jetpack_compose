@@ -24,17 +24,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import com.example.compose.jetchat.theme.Blue80
 
 class BluetoothServerFragment : Fragment() {
 
     private val bluetoothConnector = BluetoothConnector()
 
-    private val viewModel: BluetoothServerViewModel by activityViewModels()
+    private var bluetoothServerThread: BluetoothServerThread? = null
+
+    private val viewModel: BluetoothServerViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,19 +55,30 @@ class BluetoothServerFragment : Fragment() {
 
     override fun onStart() {
         super.onStart()
+
         bluetoothConnector.subscribe(viewModel)
         viewModel.bluetoothState.value = bluetoothConnector.checkState()
+        viewModel.bluetoothState.observe(viewLifecycleOwner) {
+            checkServerThread()
+        }
+        checkServerThread()
     }
 
     override fun onStop() {
         super.onStop()
         bluetoothConnector.unsubscribe(viewModel)
+        bluetoothServerThread?.cancel()
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String?>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty()) {
-            viewModel.bluetoothState.value = bluetoothConnector.checkState()
+    fun checkServerThread() {
+        bluetoothConnector.bluetoothAdapter?.let { adapter ->
+            if (adapter.isEnabled && (bluetoothServerThread == null || bluetoothServerThread?.isAlive != true)) {
+                bluetoothServerThread = BluetoothServerThread(adapter, viewModel)
+                bluetoothServerThread?.start()
+            } else if (!adapter.isEnabled && bluetoothServerThread?.isAlive == true) {
+                bluetoothServerThread?.cancel()
+                bluetoothServerThread = null
+            } else {}
         }
     }
 
@@ -92,12 +107,12 @@ class BluetoothServerFragment : Fragment() {
 
                 Text(text = "Item 1")
 
-//                ChatList(
-//                    modifier = Modifier
-//                        .fillMaxSize()
-//                        .weight(1.0f)
-//                        .border(1.dp, Blue80, RoundedCornerShape(4.dp))
-//                )
+                ChatList(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1.0f)
+                        .border(1.dp, Blue80, RoundedCornerShape(4.dp))
+                )
 
                 ChatSendContainer()
             }
@@ -115,7 +130,20 @@ class BluetoothServerFragment : Fragment() {
                     .background(MaterialTheme.colorScheme.background)
                     .fillMaxSize()
             ) {
-                Text(text = "DISABLED")
+                Column(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                ) {
+                    Text(
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        text = "Bluetooth disabled")
+                    Text(
+                        fontSize = 16.sp,
+                        text = "Check app permissions"
+                    )
+                }
+
             }
         }
     }
@@ -137,7 +165,9 @@ class BluetoothServerFragment : Fragment() {
         }
 
         LaunchedEffect(itemList) {
-            lazyListState.scrollToItem(itemList.size - 1)
+            if (itemList.isNotEmpty()) {
+                lazyListState.scrollToItem(itemList.size - 1)
+            }
         }
     }
 

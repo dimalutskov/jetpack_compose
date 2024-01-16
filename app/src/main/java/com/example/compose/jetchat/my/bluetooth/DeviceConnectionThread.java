@@ -43,7 +43,7 @@ public class DeviceConnectionThread  extends Thread {
             // MY_UUID is the app's UUID string, also used in the server code.
 //            ParcelUuid[] idArray = device.getUuids();
 //            java.util.UUID uuidYouCanUse = java.util.UUID.fromString(idArray[0].toString());
-            UUID uuid = UUID.fromString(BluetoothServerThread.MY_UUID);
+            UUID uuid = UUID.randomUUID();//UUID.fromString(BluetoothServerThread.MY_UUID);
             tmp = device.createRfcommSocketToServiceRecord(uuid);
         } catch (Exception e) {
             mHandler.obtainMessage(MESSAGE_ERROR, -1, -1, e).sendToTarget();
