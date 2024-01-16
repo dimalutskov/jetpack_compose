@@ -26,7 +26,7 @@ class BluetoothServerViewModel : ViewModel(),
 
     override fun onServerStarted() {
         viewModelScope.launch(Dispatchers.Main) {
-            messages.value?.add(DisplayMessage(
+            addMessage(DisplayMessage(
                 DisplayMessage.MessageType.CONNECTION,
                 "SERVER",
                 "Started!")
@@ -38,7 +38,7 @@ class BluetoothServerViewModel : ViewModel(),
     override fun onError(e: Exception, device: BluetoothDevice?) {
         viewModelScope.launch(Dispatchers.Main) {
             val name = if (device == null) "SERVER" else device.name
-            messages.value?.add(DisplayMessage(
+            addMessage(DisplayMessage(
                 DisplayMessage.MessageType.ERROR,
                 name,
                 e.javaClass.toString() + " " + e.message)
@@ -50,7 +50,7 @@ class BluetoothServerViewModel : ViewModel(),
     override fun onDeviceConnected(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.Main) {
             connectedDevices.value?.add(device)
-            messages.value?.add(DisplayMessage(
+            addMessage(DisplayMessage(
                 DisplayMessage.MessageType.CONNECTION,
                 device.name,
                 "Connected!")
@@ -62,7 +62,7 @@ class BluetoothServerViewModel : ViewModel(),
     override fun onDeviceDisconnected(device: BluetoothDevice) {
         viewModelScope.launch(Dispatchers.Main) {
             connectedDevices.value?.remove(device)
-            messages.value?.add(DisplayMessage(
+            addMessage(DisplayMessage(
                 DisplayMessage.MessageType.CONNECTION,
                 device.name,
                 "Disconnected!")
@@ -74,12 +74,18 @@ class BluetoothServerViewModel : ViewModel(),
     override fun onDeviceMessage(device: BluetoothDevice, length: Int, bytes: ByteArray) {
         viewModelScope.launch(Dispatchers.Main) {
             val msgString = String(bytes, 0, length, Charsets.UTF_8)
-            messages.value?.add(DisplayMessage(
+            addMessage(DisplayMessage(
                 DisplayMessage.MessageType.MESSAGE,
                 device.name,
                 msgString)
             )
         }
+    }
+
+    private fun addMessage(message: DisplayMessage) {
+        val currentList = messages.value.orEmpty().toMutableList()
+        currentList.add(message)
+        messages.value = currentList
     }
 
     data class DisplayMessage(val type: MessageType, val sender: String, val message: String) {
