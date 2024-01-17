@@ -51,7 +51,7 @@ class ConversationFragment : Fragment() {
                         // Click callback
                         val bundle = bundleOf("userId" to user)
                         findNavController().navigate(
-                            R.id.nav_profile,
+                            R.id.nav_client,
                             bundle
                         )
                     },

@@ -45,8 +45,12 @@ class BluetoothConnector {
                     }
                 }
 
+                BluetoothAdapter.ACTION_DISCOVERY_STARTED -> {
+                    listeners.forEach { it.onBluetoothDeviceObservingUpdate(true) }
+                }
+
                 BluetoothAdapter.ACTION_DISCOVERY_FINISHED -> {
-                    stopDiscoveringDevices()
+                    listeners.forEach { it.onBluetoothDeviceObservingUpdate(false) }
                 }
 
                 BluetoothDevice.ACTION_BOND_STATE_CHANGED -> {
@@ -68,6 +72,7 @@ class BluetoothConnector {
         val filter = IntentFilter()
         filter.addAction(BluetoothDevice.ACTION_FOUND)
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+        filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED)
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
         filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST)
         filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED)
@@ -140,7 +145,7 @@ class BluetoothConnector {
         return State.BLUETOOTH_ENABLED
     }
 
-    private fun discoverDevices(): Boolean {
+    fun discoverDevices(): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
             && ActivityCompat.checkSelfPermission(activity, Manifest.permission.BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED) {
             requestPermissionsLauncher.launch(Manifest.permission.BLUETOOTH_SCAN)
@@ -171,6 +176,7 @@ class BluetoothConnector {
 
     interface Listener {
         fun onBluetoothStateChanged(state: State) {}
+        fun onBluetoothDeviceObservingUpdate(observingStarted: Boolean) {}
         fun onBluetoothDeviceFound(device: BluetoothDevice) {}
         fun onBluetoothBoundStateChanged(device: BluetoothDevice, boundState: Int) {}
     }

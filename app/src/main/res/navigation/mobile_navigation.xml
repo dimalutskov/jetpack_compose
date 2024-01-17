@@ -29,9 +29,12 @@
         android:id="@+id/nav_server"
         android:name="com.example.compose.jetchat.my.BluetoothServerFragment"
         android:label="Server">
-<!--        <argument-->
-<!--            android:name="userId"-->
-<!--            app:argType="string" />-->
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_client"
+        android:name="com.example.compose.jetchat.my.BluetoothClientFragment"
+        android:label="Client">
     </fragment>
 
     <fragment

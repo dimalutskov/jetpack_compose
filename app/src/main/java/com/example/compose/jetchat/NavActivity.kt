@@ -90,7 +90,7 @@ class NavActivity : AppCompatActivity() {
                         onProfileClicked = {
                             val bundle = bundleOf("userId" to it)
 //                            findNavController().navigate(R.id.nav_profile, bundle)
-                            findNavController().navigate(R.id.nav_server, bundle)
+                            findNavController().navigate(R.id.nav_client, bundle)
                             scope.launch {
                                 drawerState.close()
                             }
