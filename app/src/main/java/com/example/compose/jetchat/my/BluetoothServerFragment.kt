@@ -24,41 +24,56 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.example.compose.jetchat.theme.Blue80
 
-class BluetoothServerFragment : Fragment() {
-
-    private val bluetoothConnector = BluetoothConnector()
+class BluetoothServerFragment : BluetoothBaseFragment() {
 
     private var bluetoothServerThread: BluetoothServerThread? = null
 
     private val viewModel: BluetoothServerViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        bluetoothConnector.init(this)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View = ComposeView(inflater.context).apply {
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         setContent {
-            VerticalLinearLayout()
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+                    .navigationBarsPadding()
+                    .imePadding()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(12.dp, 0.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
+
+                    Text(text = "Item 1")
+
+                    ChatList(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .weight(1.0f)
+                            .border(1.dp, Blue80, RoundedCornerShape(4.dp))
+                    )
+
+                    ChatSendContainer()
+                }
+
+                BluetoothDisabledView()
+            }
         }
     }
 
     override fun onStart() {
         super.onStart()
 
-        bluetoothConnector.subscribe(viewModel)
-        viewModel.bluetoothState.value = bluetoothConnector.checkState()
-        viewModel.bluetoothState.observe(viewLifecycleOwner) {
+        super.baseViewModel.bluetoothState.observe(viewLifecycleOwner) {
             checkServerThread()
         }
         checkServerThread()
@@ -66,7 +81,7 @@ class BluetoothServerFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
-        bluetoothConnector.unsubscribe(viewModel)
+
         bluetoothServerThread?.cancel()
     }
 
@@ -79,72 +94,6 @@ class BluetoothServerFragment : Fragment() {
                 bluetoothServerThread?.cancel()
                 bluetoothServerThread = null
             } else {}
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        bluetoothConnector.destroy()
-    }
-
-    @Composable
-    fun VerticalLinearLayout() {
-
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                .navigationBarsPadding()
-                .imePadding()
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(12.dp, 0.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Spacer(Modifier.windowInsetsTopHeight(WindowInsets.statusBars))
-
-                Text(text = "Item 1")
-
-                ChatList(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1.0f)
-                        .border(1.dp, Blue80, RoundedCornerShape(4.dp))
-                )
-
-                ChatSendContainer()
-            }
-
-            DisabledView()
-        }
-    }
-
-    @Composable
-    fun DisabledView() {
-        val state by viewModel.bluetoothState.observeAsState()
-        if (state != BluetoothConnector.State.BLUETOOTH_ENABLED) {
-            Box(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .fillMaxSize()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                ) {
-                    Text(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        text = "Bluetooth disabled")
-                    Text(
-                        fontSize = 16.sp,
-                        text = "Check app permissions"
-                    )
-                }
-
-            }
         }
     }
 
@@ -229,9 +178,6 @@ class BluetoothServerFragment : Fragment() {
         }
         // Use LocalSoftwareKeyboardController to show/hide keyboard
 //        val keyboardController = LocalSoftwareKeyboardController.current
-
-
-
 
     }
 

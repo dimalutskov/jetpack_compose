@@ -9,20 +9,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class BluetoothServerViewModel : ViewModel(),
-    BluetoothConnector.Listener,
     BluetoothServerThread.Listener {
-
-    val bluetoothState: MutableLiveData<BluetoothConnector.State> = MutableLiveData(BluetoothConnector.State.NOT_SUPPORTED)
 
     val connectedDevices: MutableLiveData<MutableList<BluetoothDevice>> = MutableLiveData(ArrayList())
 
     val messages: MutableLiveData<MutableList<DisplayMessage>> = MutableLiveData(ArrayList())
 
     val inputText = MutableLiveData("")
-
-    override fun onBluetoothStateChanged(state: BluetoothConnector.State) {
-        bluetoothState.value = state
-    }
 
     override fun onServerStarted() {
         viewModelScope.launch(Dispatchers.Main) {
